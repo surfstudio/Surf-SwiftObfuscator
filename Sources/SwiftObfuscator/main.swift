@@ -1,0 +1,1 @@
+ObfuscateStrings.main()
