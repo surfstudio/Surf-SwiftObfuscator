@@ -2,7 +2,7 @@ import Foundation
 
 public final class Obfuscator {
 
-    // MARK: - Public Properties
+    // MARK: - Private Properties
 
     /// The salt used to obfuscate and reveal the string.
     private var salt: String = ""
@@ -10,7 +10,7 @@ public final class Obfuscator {
     // MARK: - Lifecycle
 
     @inline(__always)
-    init(withSalt salt: String) {
+    public init(withSalt salt: String) {
         self.salt = salt
     }
 
@@ -24,7 +24,7 @@ public final class Obfuscator {
     /// - Parameter string: the string to obfuscate.
     /// - Returns: the obfuscated string in a byte array.
     @inline(__always)
-    func bytesByObfuscatingString(string: String) -> [UInt8] {
+    public func bytesByObfuscatingString(string: String) -> [UInt8] {
         let text = [UInt8](string.utf8)
         let cipher = [UInt8](self.salt.utf8)
         let length = cipher.count
@@ -47,7 +47,7 @@ public final class Obfuscator {
     /// - Parameter key: the byte array to reveal.
     /// - Returns: the original string.
     @inline(__always)
-    func reveal(key: [UInt8]) -> String? {
+    public func reveal(key: [UInt8]) -> String? {
         let cipher = [UInt8](self.salt.utf8)
         let length = cipher.count
 
