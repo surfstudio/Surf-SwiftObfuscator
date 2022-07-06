@@ -1,6 +1,6 @@
 import Foundation
 
-final class Obfuscator {
+public final class Obfuscator {
 
     // MARK: - Public Properties
 
