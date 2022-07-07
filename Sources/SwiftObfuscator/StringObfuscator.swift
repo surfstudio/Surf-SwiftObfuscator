@@ -13,7 +13,6 @@ final class StringObfuscator {
         static let interpolationRegex = #"[^\\]\\\((.*?)\)"#
 
         static let nameProperyRegex = #"\b\w+\b\s="#
-        static let extensionRegex = #"fileprivate\sextension\sObfuscator.+$\n\n.+\n.+\n.+\n.+\n\n.$"#
     }
 
     // MARK: - Properties
@@ -69,7 +68,8 @@ final class StringObfuscator {
             insertComment(for: rawString, by: &obfuscatedContents)
         }
 
-        disableSwiftLint(by: &obfuscatedContents)
+        obfuscatedContents.insert(string: "import Obfuscator\n", at: obfuscatedContents.startIndex)
+        obfuscatedContents.insert(string: "// swiftlint:disable line_length", at: obfuscatedContents.startIndex)
         appendExtensionObfuscator(by: &obfuscatedContents)
         return obfuscatedContents
     }
@@ -154,14 +154,6 @@ private extension StringObfuscator {
         content.insert(contentsOf: "\t// Obfuscated from \"\(propertyName)\"\n", at: range.lowerBound)
     }
 
-    func disableSwiftLint(by content: inout String) {
-        let disableLineLengthString = "swiftlint:disable line_length"
-        guard !content.contains(disableLineLengthString) else {
-            return
-        }
-        content.insert(contentsOf: "// " + disableLineLengthString + "\n", at: contents.startIndex)
-    }
-
     func appendExtensionObfuscator(by content: inout String) {
         let returningObfuscatorString = "return Obfuscator(withSalt:"
         let lines = content.components(separatedBy: .newlines)
@@ -206,6 +198,13 @@ fileprivate extension String {
             .trimmingCharacters(in: .init(charactersIn: "="))
             .trimmingCharacters(in: .whitespaces)
         return string
+    }
+
+    mutating func `insert`(string: String, at index: String.Index) {
+        guard !self.contains(string) else {
+            return
+        }
+        self.insert(contentsOf: string + "\n", at: self.startIndex)
     }
 
 }
