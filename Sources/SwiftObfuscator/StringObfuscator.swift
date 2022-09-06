@@ -11,6 +11,8 @@ final class StringObfuscator {
         static let stringRegex = #"([\"'])(?:(?=(\\?))\2.)*?\1"#
 
         static let interpolationRegex = #"[^\\]\\\((.*?)\)"#
+
+        static let nameProperyRegex = #"\b\w+\b\s="#
     }
 
     // MARK: - Properties
@@ -63,14 +65,22 @@ final class StringObfuscator {
             let obfuscatedString = "Obfuscator.default.reveal(key: \(bytes)) ?? \"\""
 
             obfuscatedContents.replaceSubrange(range, with: obfuscatedString)
+            insertComment(for: rawString, by: &obfuscatedContents)
         }
 
+        obfuscatedContents.insert(string: "import Obfuscator\n", at: obfuscatedContents.startIndex)
+        obfuscatedContents.insert(string: "// swiftlint:disable line_length", at: obfuscatedContents.startIndex)
+        appendExtensionObfuscator(by: &obfuscatedContents)
         return obfuscatedContents
     }
 
-    // MARK: - Private methods
+}
 
-    private func getAllCommentRanges() throws -> [NSRange] {
+// MARK: - Private
+
+private extension StringObfuscator {
+
+    func getAllCommentRanges() throws -> [NSRange] {
         let multiLineCommentRegexp = try NSRegularExpression(pattern: Constants.multiLineCommentRegex)
         let singleLineCommentRegexp = try NSRegularExpression(pattern: Constants.singleLineCommentRegex)
 
@@ -81,7 +91,7 @@ final class StringObfuscator {
         return matches.map(\.range)
     }
 
-    private func getStringRanges(on range: NSRange, excluding: [NSRange]) throws -> [NSRange] {
+    func getStringRanges(on range: NSRange, excluding: [NSRange]) throws -> [NSRange] {
         let stringsRegexp = try NSRegularExpression(pattern: Constants.stringRegex)
 
         let interpolationRegexp = try NSRegularExpression(pattern: Constants.interpolationRegex)
@@ -100,7 +110,12 @@ final class StringObfuscator {
             }
     }
 
-    private func bytesByObfuscatingString(string: String) -> [UInt8] {
+    func getPropertyRange(with range: NSRange, line: String) -> NSRange? {
+        let propertyRegexp = try? NSRegularExpression(pattern: Constants.nameProperyRegex)
+        return propertyRegexp?.firstMatch(in: line, range: range)?.range
+    }
+
+    func bytesByObfuscatingString(string: String) -> [UInt8] {
         let text = [UInt8](string.utf8)
         let cipher = [UInt8](salt.utf8)
         let length = cipher.count
@@ -114,7 +129,7 @@ final class StringObfuscator {
         return encrypted
     }
 
-    private func getRange(of lineNumber: Int) -> NSRange {
+    func getRange(of lineNumber: Int) -> NSRange {
         let lineNumber = lineNumber - 1
         let lines = contents.components(separatedBy: .newlines)
         let line = lines[lineNumber]
@@ -122,7 +137,51 @@ final class StringObfuscator {
         return NSRange(location: count, length: line.count)
     }
 
+    func insertComment(for rawString: Substring.SubSequence, by content: inout String) {
+        let lines = contents.components(separatedBy: .newlines)
+        guard let numberOfLine = lines.firstIndex(where: { $0.contains(rawString) }) else {
+            return
+        }
+        let lineRange = getRange(of: numberOfLine + 1)
+
+        guard let propertyRange = getPropertyRange(with: lineRange, line: contents) else {
+            return
+        }
+        let propertyName = contents[propertyRange].cleanExtraVirgules
+        let lineStart = contents.index(contents.startIndex, offsetBy: lineRange.lowerBound)
+        let lineEnd = contents.index(contents.startIndex, offsetBy: lineRange.upperBound)
+        let range = lineStart..<lineEnd
+        content.insert(contentsOf: "\t// Obfuscated from \"\(propertyName)\"\n", at: range.lowerBound)
+    }
+
+    func appendExtensionObfuscator(by content: inout String) {
+        let returningObfuscatorString = "return Obfuscator(withSalt:"
+        let lines = content.components(separatedBy: .newlines)
+        if let lineNumber = lines.firstIndex(where: { $0.contains(returningObfuscatorString) }) {
+            content = content.replacingOccurrences(of: lines[lineNumber], with: "\t\t\(returningObfuscatorString) \"\(salt)\")")
+        } else {
+            content.append(contentsOf: obfuscatorExtension)
+        }
+    }
+
+    var obfuscatorExtension: String {
+"""
+
+fileprivate extension Obfuscator {
+
+    @inline(__always)
+    static var `default`: Obfuscator {
+        return Obfuscator(withSalt: \"\(salt)\")
+    }
+
 }
+
+"""
+    }
+
+}
+
+// MARK: - Support
 
 fileprivate extension String {
 
@@ -131,6 +190,21 @@ fileprivate extension String {
         let end = self.index(self.startIndex, offsetBy: range.upperBound)
         let subString = self[start..<end]
         return String(subString)
+    }
+
+    /// Removes extra equalities, spaces at the beginning and at the end of a string
+    var cleanExtraVirgules: String {
+        let string = self
+            .trimmingCharacters(in: .init(charactersIn: "="))
+            .trimmingCharacters(in: .whitespaces)
+        return string
+    }
+
+    mutating func `insert`(string: String, at index: String.Index) {
+        guard !self.contains(string) else {
+            return
+        }
+        self.insert(contentsOf: string + "\n", at: self.startIndex)
     }
 
 }
