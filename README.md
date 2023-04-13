@@ -3,7 +3,7 @@
 [![GitHubActions Build Status](https://github.com/surfstudio/Surf-SwiftObfuscator/workflows/Build/badge.svg)](https://github.com/surfstudio/Surf-SwiftObfuscator/actions)
 [![SPM Compatible](https://img.shields.io/badge/SPM-compatible-blue.svg)](https://github.com/apple/swift-package-manager)
 
-Byte Code Obfuscator for Encrypting Strings.
+Byte Code Obfuscator for Strings Encrypting.
 
 [![SwiftObfuscator](https://i.ibb.co/g9wMLyb/Surf-Obfuscator.png)](https://github.com/surfstudio/SurfPlaybook)
 
@@ -46,9 +46,9 @@ If you need to obfuscate a specific string then use:
 swift run SwiftObfuscator -f ../MyProject/Tokens.swift -s somesalt -l 135
 ```
 
-Result example:
+#### Result example
 
-<details>
+<details>Result
 File before change:
 
 ```swift
