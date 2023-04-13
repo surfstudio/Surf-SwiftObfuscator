@@ -1,14 +1,24 @@
 # SwiftObfuscator
 
-Byte Code Obfuscator for Encrypting Strings
-Changes a string literal, adds a decryption extension to the file with the encrypted string.
+[![GitHubActions Build Status](https://github.com/surfstudio/Surf-SwiftObfuscator/workflows/Build/badge.svg)](https://github.com/surfstudio/Surf-SwiftObfuscator/actions)
+[![SPM Compatible](https://img.shields.io/badge/SPM-compatible-blue.svg)](https://github.com/apple/swift-package-manager)
 
-## Setup:
+Byte Code Obfuscator for Encrypting Strings.
 
-Just add the package to your project
-Or download it separately, you will need to transfer the Obfuscator swift file to your project.
+[![SwiftObfuscator](https://i.ibb.co/g9wMLyb/Surf-Obfuscator.png)](https://github.com/surfstudio/SurfPlaybook)
 
-## Usage:
+## About
+
+Encrypts a string literal, adds a decryption extension to the file with the encrypted string.
+
+## Installation
+
+#### Swift Package Manager
+
+- Into the Xcode `File > Swift Packages > Add Package Dependency`
+- Enter repository URL `https://github.com/surfstudio/Surf-SwiftObfuscator`
+
+## Usage
 
 - Right click on the package and select "Show in Finder"
 - Right-click on the folder with the "Surf-SwiftObfuscator" package and select "new terminal by folder adress" from the context menu
@@ -23,9 +33,9 @@ Parameters:
 `-l` or `--line <line>` The line number on which strings should be obfuscated. By default, all lines will be obfuscated.
 
 
-### Example:
+#### Example
 
- To obfuscate all lines in a file in the terminal that opens, type:
+To obfuscate all lines in a file in the terminal that opens, type:
 
 ```bash
 swift run SwiftObfuscator -f ../MyProject/Tokens.swift -s somesalt
@@ -36,8 +46,9 @@ If you need to obfuscate a specific string then use:
 swift run SwiftObfuscator -f ../MyProject/Tokens.swift -s somesalt -l 135
 ```
 
-### File Changes
+Result example:
 
+<details>
 File before change:
 
 ```swift
@@ -94,3 +105,13 @@ fileprivate extension Obfuscator {
 
 }
 ```
+
+</details>
+
+## Changelog
+
+You can see list of all changes in this [file](./CHANGELOG.md).
+
+## License
+
+[MIT License](./LICENSE)
