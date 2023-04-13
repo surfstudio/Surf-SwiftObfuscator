@@ -1,17 +1,23 @@
-name: Swift
+name: Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - '**'
+    types: [ opened, edited, synchronize, reopened ]
 
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: macos-12
 
     steps:
     - uses: actions/checkout@v3
+    - name: Force select Xcode 14
+      run: |
+        sudo xcode-select -switch /Applications/Xcode_14.2.app
     - name: Build
       run: swift build -v
