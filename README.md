@@ -48,7 +48,7 @@ swift run SwiftObfuscator -f ../MyProject/Tokens.swift -s somesalt -l 135
 
 #### Result example
 
-<details>Result
+<details>
 File before change:
 
 ```swift
