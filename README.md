@@ -1,6 +1,5 @@
 # SwiftObfuscator
 
-[![GitHubActions Build Status](https://github.com/surfstudio/Surf-SwiftObfuscator/workflows/Build/badge.svg)](https://github.com/surfstudio/Surf-SwiftObfuscator/actions)
 [![SPM Compatible](https://img.shields.io/badge/SPM-compatible-blue.svg)](https://github.com/apple/swift-package-manager)
 
 Byte Code Obfuscator for Strings Encrypting.
