@@ -74,11 +74,48 @@ final class StringObfuscator {
         return obfuscatedContents
     }
 
+    func obfuscateLocalizationValues() -> String {
+        let regexPattern = "\"(.+?)\"\\s*=\\s*\"(.+?)\";"
+        var obfuscatedContents = contents
+
+        do {
+            let regex = try NSRegularExpression(pattern: regexPattern)
+            let results = regex.matches(in: contents, range: fullFileRange).reversed()
+
+            for match in results {
+                if let valueRange = Range(match.range(at: 2), in: contents) {
+                    let originalValue = String(contents[valueRange])
+                    let bytes = bytesByObfuscatingString(string: originalValue)
+                    let obfuscatedString = bytes.map { "\($0)" }.joined(separator: ",")
+                    obfuscatedContents.replaceSubrange(valueRange, with: obfuscatedString)
+                }
+            }
+
+            return obfuscatedContents
+        } catch {
+            print("Invalid regex: \(error.localizedDescription)")
+            return contents
+        }
+    }
+    
 }
 
 // MARK: - Private
 
 private extension StringObfuscator {
+
+    func getSecondWordRanges(on range: NSRange, excluding: [NSRange]) -> [NSRange] {
+        let secondWordRegex = #"\"[^\"]+\"\s*=\s*\"([^\"]+)\";"#
+        guard let regex = try? NSRegularExpression(pattern: secondWordRegex, options: []) else {
+            return []
+        }
+
+        let matches = regex.matches(in: contents, options: [], range: range)
+        return matches.compactMap { match in
+            guard match.numberOfRanges >= 2 else { return nil }
+            return match.range(at: 1)
+        }
+    }
 
     func getAllCommentRanges() throws -> [NSRange] {
         let multiLineCommentRegexp = try NSRegularExpression(pattern: Constants.multiLineCommentRegex)
