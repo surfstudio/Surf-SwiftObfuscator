@@ -16,8 +16,6 @@ public final class Obfuscator {
 
     // MARK: - Public Methods
 
-    #if DEBUG
-
     /// This method obfuscates the string passed in using the salt
     /// that was used when the Obfuscator was initialized.
     ///
@@ -37,8 +35,6 @@ public final class Obfuscator {
 
         return encrypted
     }
-
-    #endif
 
     /// This method reveals the original string from the obfuscated
     /// byte array passed in. The salt must be the same as the one
