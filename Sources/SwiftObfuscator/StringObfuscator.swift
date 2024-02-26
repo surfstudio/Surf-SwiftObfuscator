@@ -85,6 +85,10 @@ final class StringObfuscator {
             for match in results {
                 if let valueRange = Range(match.range(at: 2), in: contents) {
                     let originalValue = String(contents[valueRange])
+                    let inputStringKeys = ["%@", "%d", "%.0f"]
+                    if inputStringKeys.contains(where: originalValue.contains) {
+                        continue
+                    }
                     let bytes = bytesByObfuscatingString(string: originalValue)
                     let obfuscatedString = bytes.map { "\($0)" }.joined(separator: ",")
                     obfuscatedContents.replaceSubrange(valueRange, with: obfuscatedString)
